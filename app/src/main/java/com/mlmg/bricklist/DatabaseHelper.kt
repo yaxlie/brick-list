@@ -195,14 +195,16 @@ class DataBaseHelper
 
         var id: Int
         var name: String
-        var active: Boolean
-        var lastMod: String
+        var active: Int
+        var lastAccess: Int
 
         if (cursor!!.moveToFirst()) {
             while (cursor.isAfterLast == false) {
                 name = cursor.getString(cursor.getColumnIndex("Name"))
+                id = cursor.getInt(cursor.getColumnIndex("id"))
+                active = cursor.getInt(cursor.getColumnIndex("Active"))
 
-                inventories.add(Inventory(name))
+                inventories.add(Inventory(name, id, active>0))
                 cursor.moveToNext()
             }
         }
@@ -294,6 +296,40 @@ class DataBaseHelper
         }
         cursor.close()
         return part
+    }
+
+    fun getAllInvParts(inventory_id : Int): ArrayList<InventoriesPart> {
+        val parts = ArrayList<InventoriesPart>()
+        val db = myDataBase
+        var cursor: Cursor? = null
+        try {
+            cursor = db?.rawQuery("select * from InventoriesParts where InventoryID = $inventory_id", null)
+        } catch (e: SQLiteException) {
+            return ArrayList()
+        }
+
+        var inventoryId = inventory_id
+        var typeId = 0
+        var itemId = 0
+        var quantityInSet = 0
+        var quantityInStore = 0
+        var colorId = 0
+        var extra : Int? = 0
+
+        if (cursor!!.moveToFirst()) {
+            while (cursor.isAfterLast == false) {
+                typeId = cursor.getInt(cursor.getColumnIndex("TypeID"))
+                itemId = cursor.getInt(cursor.getColumnIndex("ItemID"))
+                quantityInSet = cursor.getInt(cursor.getColumnIndex("QuantityInSet"))
+                quantityInStore = cursor.getInt(cursor.getColumnIndex("QuantityInStore"))
+                colorId = cursor.getInt(cursor.getColumnIndex("ColorID"))
+
+                parts.add(InventoriesPart(inventoryId, typeId, itemId, quantityInSet, quantityInStore, colorId, extra))
+                cursor.moveToNext()
+            }
+        }
+        cursor.close()
+        return parts
     }
 
     // Add your public helper methods to access and get content from the database.

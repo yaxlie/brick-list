@@ -35,6 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class MainActivity : AppCompatActivity() {
 
+    val EXTRA_ID = "project_id"
     val BASE_URL = "http://fcds.cs.put.poznan.pl/MyWeb/BL/"
 
     var myDbHelper: DataBaseHelper? = null
@@ -45,7 +46,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.i("Main", "Start")
-        myDbHelper = openDb()
+//        myDbHelper = openDb()
+        myDbHelper = MyDbHelper.openDb(this)
 
 //        myDbHelper?.insertInventory(Inventory("Projekt 1"))
         inventories = myDbHelper?.readAllInventory()
@@ -77,7 +79,13 @@ class MainActivity : AppCompatActivity() {
         val layout = findViewById<LinearLayout>(R.id.projectsList)
         layout.removeAllViews()
         for (i in inventories!!){
-            addProjListItem(i,layout)
+            val item = addProjListItem(i,layout)
+            item.setOnClickListener {
+                val intent = Intent(this, PackageActivity::class.java)
+                val prjId = i.id
+                intent.putExtra(EXTRA_ID, prjId)
+                startActivity(intent)
+            }
         }
     }
     fun addProjListItem(inventory: Inventory, tempLayout: LinearLayout): LinearLayoutCompat {
@@ -88,7 +96,7 @@ class MainActivity : AppCompatActivity() {
         return item
     }
 
-    private fun openDb(): DataBaseHelper{
+    fun openDb(): DataBaseHelper{
         var myDbHelper = DataBaseHelper(this)
         myDbHelper = DataBaseHelper(this)
         try {
