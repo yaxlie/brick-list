@@ -36,11 +36,18 @@ import javax.xml.parsers.DocumentBuilderFactory
 class MainActivity : AppCompatActivity() {
 
     val EXTRA_ID = "project_id"
+    val TAG = "MainActivity"
     val BASE_URL = "http://fcds.cs.put.poznan.pl/MyWeb/BL/"
 
     var myDbHelper: DataBaseHelper? = null
     var inventories: List<Inventory>? = null
     var package_nr: String = "615"
+
+    override fun onResume() {
+        super.onResume()
+        Log.i(TAG,"Resuming")
+        loadProjects()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +57,8 @@ class MainActivity : AppCompatActivity() {
         myDbHelper = MyDbHelper.openDb(this)
 
 //        myDbHelper?.insertInventory(Inventory("Projekt 1"))
-        inventories = myDbHelper?.readAllInventory()
 
         loadProjects()
-
-        Log.i("Main", inventories?.size.toString())
 
 //        getXml(package_nr, object:XMLListener{
 //            override fun onSuccess(xml:String) {
@@ -76,6 +80,8 @@ class MainActivity : AppCompatActivity() {
 
 
     fun loadProjects(){
+        Log.i(TAG, "Loading list of projects.")
+        inventories = myDbHelper?.readAllInventory()
         val layout = findViewById<LinearLayout>(R.id.projectsList)
         layout.removeAllViews()
         for (i in inventories!!){

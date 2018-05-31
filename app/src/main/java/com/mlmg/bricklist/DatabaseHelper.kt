@@ -171,7 +171,7 @@ class DataBaseHelper
         values.put("InventoryID", invId)
         values.put("TypeID", itemType?.id)
         values.put("ItemID", part?.id)
-        values.put("QuantityInSet", item.qty)
+        values.put("QuantityInSet", item.qty.toInt())
         values.put("QuantityInStore", 0)
         values.put("ColorID", color?.id)
 
@@ -238,11 +238,14 @@ class DataBaseHelper
         return ItemTypeModel(id, code, name, namePl)
     }
 
-    fun getColorModel(code: String): ColorModel? {
+    fun getColorModel(code: String, colorId: Int = 0): ColorModel? {
         val db = myDataBase
         var cursor: Cursor? = null
         try {
-            cursor = db?.rawQuery("select * from Colors WHERE Code = "  + code, null)
+            if(colorId>0)
+                cursor = db?.rawQuery("select * from Colors WHERE id = $colorId", null)
+            else
+                cursor = db?.rawQuery("select * from Colors WHERE Code = "  + code, null)
         } catch (e: SQLiteException) {
             // if table not yet present, create it
             return null
@@ -264,12 +267,15 @@ class DataBaseHelper
         return ColorModel(id, code, name, namePl)
     }
 
-    fun getPart(code: String): Part? {
+    fun getPart(code: String, itemId: Int = 0): Part? {
         val db = myDataBase
         var part: Part? = null
         var cursor: Cursor? = null
         try {
-            cursor = db?.rawQuery("select * from Parts WHERE Code like '$code'", null)
+            if(itemId == 0)
+                cursor = db?.rawQuery("select * from Parts WHERE Code like '$code'", null)
+            else
+                cursor = db?.rawQuery("select * from Parts WHERE id =  '$itemId'", null)
         } catch (e: SQLiteException) {
             // if table not yet present, create it
             return null
@@ -308,6 +314,7 @@ class DataBaseHelper
             return ArrayList()
         }
 
+        var id = 0
         var inventoryId = inventory_id
         var typeId = 0
         var itemId = 0
@@ -316,20 +323,54 @@ class DataBaseHelper
         var colorId = 0
         var extra : Int? = 0
 
+        var part: Part? = null
+        var color: ColorModel? = null
+
         if (cursor!!.moveToFirst()) {
             while (cursor.isAfterLast == false) {
+                id = cursor.getInt(cursor.getColumnIndex("id"))
                 typeId = cursor.getInt(cursor.getColumnIndex("TypeID"))
                 itemId = cursor.getInt(cursor.getColumnIndex("ItemID"))
                 quantityInSet = cursor.getInt(cursor.getColumnIndex("QuantityInSet"))
                 quantityInStore = cursor.getInt(cursor.getColumnIndex("QuantityInStore"))
                 colorId = cursor.getInt(cursor.getColumnIndex("ColorID"))
 
-                parts.add(InventoriesPart(inventoryId, typeId, itemId, quantityInSet, quantityInStore, colorId, extra))
+                part = getPart("", itemId)
+                color = getColorModel("", colorId)
+
+                parts.add(InventoriesPart(id, inventoryId, typeId, itemId, quantityInSet, quantityInStore, colorId, extra,
+                        part,color))
                 cursor.moveToNext()
             }
         }
         cursor.close()
         return parts
+    }
+
+    @Throws(SQLiteConstraintException::class)
+    fun deleteInventory(id: String): Boolean {
+        // Gets the data repository in write mode
+        val db = myDataBase
+        // Define 'where' part of query.
+        val selection = "id" + " = ?"
+        // Specify arguments in placeholder order.
+        val selectionArgs = arrayOf(id)
+        // Issue SQL statement.
+        db!!.delete("Inventories", selection, selectionArgs)
+        return true
+    }
+
+    fun updateInStore(values: ContentValues, id: Int): String {
+
+        var selectionArs = arrayOf(id.toString())
+
+        val i = myDataBase!!.update("InventoriesParts", values, "id=?", selectionArs)
+        if (i > 0) {
+            return "ok";
+        } else {
+
+            return "error";
+        }
     }
 
     // Add your public helper methods to access and get content from the database.

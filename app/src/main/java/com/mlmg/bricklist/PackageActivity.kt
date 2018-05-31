@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ListView
 import android.content.Intent
-
+import kotlinx.android.synthetic.main.activity_package.*
 
 
 class PackageActivity : AppCompatActivity() {
@@ -30,5 +30,10 @@ class PackageActivity : AppCompatActivity() {
         // Attach the adapter to a ListView
         val listView = findViewById<ListView>(R.id.listView) as ListView
         listView.setAdapter(adapter)
+
+        buttonDelete.setOnClickListener {
+            myDbHelper!!.deleteInventory(projectId.toString())
+            finish()
+        }
     }
 }
