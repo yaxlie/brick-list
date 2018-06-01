@@ -212,6 +212,35 @@ class DataBaseHelper
         return inventories
     }
 
+    fun getInventory(id: Int): Inventory? {
+        var inventory: Inventory? = null
+        val db = myDataBase
+        var cursor: Cursor? = null
+        try {
+            cursor = db?.rawQuery("select * from Inventories where id = $id", null)
+        } catch (e: SQLiteException) {
+            return null
+        }
+
+        var id: Int
+        var name: String
+        var active: Int
+        var lastAccess: Int
+
+        if (cursor!!.moveToFirst()) {
+            while (cursor.isAfterLast == false) {
+                name = cursor.getString(cursor.getColumnIndex("Name"))
+                id = cursor.getInt(cursor.getColumnIndex("id"))
+                active = cursor.getInt(cursor.getColumnIndex("Active"))
+
+                inventory = Inventory(name, id, active>0)
+                cursor.moveToNext()
+            }
+        }
+        cursor.close()
+        return inventory
+    }
+
     fun getTypeModel(code: String): ItemTypeModel? {
         val db = myDataBase
         var cursor: Cursor? = null
@@ -361,16 +390,52 @@ class DataBaseHelper
     }
 
     fun updateInStore(values: ContentValues, id: Int): String {
-
         var selectionArs = arrayOf(id.toString())
-
         val i = myDataBase!!.update("InventoriesParts", values, "id=?", selectionArs)
         if (i > 0) {
             return "ok";
         } else {
-
             return "error";
         }
+    }
+
+
+    fun updateInventory(values: ContentValues, id: Int): String {
+        var selectionArs = arrayOf(id.toString())
+        val i = myDataBase!!.update("Inventories", values, "id=?", selectionArs)
+        if (i > 0) {
+            return "ok";
+        } else {
+            return "error";
+        }
+    }
+
+    fun getInvQuantity(inventory_id : Int): IntArray {
+        val q: IntArray = intArrayOf(0,0)
+        val db = myDataBase
+        var cursor: Cursor? = null
+        try {
+            cursor = db?.rawQuery("select * from InventoriesParts where InventoryID = $inventory_id", null)
+        } catch (e: SQLiteException) {
+            return q
+        }
+
+        var quantityInSet = 0
+        var quantityInStore = 0
+
+
+        if (cursor!!.moveToFirst()) {
+            while (cursor.isAfterLast == false) {
+                quantityInSet = cursor.getInt(cursor.getColumnIndex("QuantityInSet"))
+                quantityInStore = cursor.getInt(cursor.getColumnIndex("QuantityInStore"))
+
+                q[0] += quantityInStore
+                q[1] += quantityInSet
+                cursor.moveToNext()
+            }
+        }
+        cursor.close()
+        return q
     }
 
     // Add your public helper methods to access and get content from the database.

@@ -85,7 +85,16 @@ class MainActivity : AppCompatActivity() {
         val layout = findViewById<LinearLayout>(R.id.projectsList)
         layout.removeAllViews()
         for (i in inventories!!){
+            val q = myDbHelper!!.getInvQuantity(i.id!!)
+            i.quantityInStore = q[0]
+            i.quantityInSet = q[1]
+
             val item = addProjListItem(i,layout)
+            if(!i.active!!){
+                item.layout.setBackgroundColor(resources.getColor(R.color.colorArchived))
+                layout.removeView(item)
+                layout.addView(item,layout.childCount)
+            }
             item.setOnClickListener {
                 val intent = Intent(this, PackageActivity::class.java)
                 val prjId = i.id
@@ -97,8 +106,16 @@ class MainActivity : AppCompatActivity() {
     fun addProjListItem(inventory: Inventory, tempLayout: LinearLayout): LinearLayoutCompat {
         val item = layoutInflater.inflate(R.layout.project_list_object,null) as LinearLayoutCompat
         item.titleText.text = (inventory.name)
+        val text = "${inventory.quantityInStore}/${inventory.quantityInSet}"
+        item.statusText.text = text
 
-        tempLayout.addView(item)
+        item.layout.setBackgroundColor(resources.getColor(
+                if(inventory.quantityInSet == inventory.quantityInStore) R.color.colorTrue else R.color.colorFalse))
+
+        if(inventory.quantityInSet == inventory.quantityInStore)
+            tempLayout.addView(item)
+        else
+            tempLayout.addView(item,0)
         return item
     }
 
@@ -201,18 +218,20 @@ class MainActivity : AppCompatActivity() {
         val dialogView = inflater.inflate(R.layout.custom_dialog, null)
         dialogBuilder.setView(dialogView)
 
-        val editText = dialogView.findViewById<View>(R.id.idText) as EditText
+        val idEditText = dialogView.findViewById<View>(R.id.idText) as EditText
+        val titleEditText = dialogView.findViewById<View>(R.id.titleText) as EditText
 
         dialogBuilder.setTitle("Nowy projekt")
-        dialogBuilder.setMessage("Wprowadź id projektu")
+        dialogBuilder.setMessage("Wprowadź nazwę i id projektu")
         dialogBuilder.setPositiveButton("Dodaj", DialogInterface.OnClickListener { dialog, whichButton ->
 
-            getXml(editText.text.toString(), object:XMLListener{
+            getXml(idEditText.text.toString(), object:XMLListener{
                 override fun onSuccess(xml:String) {
 
                         Log.i("ADD_PROJ", "Sukces")
                         var items = xmlParser(xml)
-                        val p_id = myDbHelper?.insertInventory(Inventory(editText.text.toString()))
+                        val p_id = myDbHelper?.insertInventory(Inventory(
+                                "(${idEditText.text}) ${titleEditText.text}"))
 
                         for (item in items) {
                             Log.i("ADD_PROJ", "Przetwarzanie ${item.itemId}")

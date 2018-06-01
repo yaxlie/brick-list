@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -21,7 +21,7 @@
             android:layout_height="50dp"
             android:layout_marginLeft="@dimen/margin_horizontal"
             android:layout_marginRight="@dimen/margin_horizontal"
-            android:background="@drawable/ic_delete_black_24dp" />
+            android:background="@drawable/ic_delete_white_24dp" />
 
         <Button
             android:id="@+id/buttonArchive"
@@ -29,7 +29,15 @@
             android:layout_marginRight="@dimen/margin_horizontal"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@drawable/ic_archive_black_24dp" />
+            android:background="@drawable/ic_archive_white_24dp" />
+
+        <Button
+            android:id="@+id/buttonExport"
+            android:layout_marginLeft="@dimen/margin_horizontal"
+            android:layout_marginRight="@dimen/margin_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/ic_import_export_white_24dp" />
     </LinearLayout>
 
     <ListView

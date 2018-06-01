@@ -7,9 +7,17 @@
     android:orientation="vertical">
 
     <EditText
-        android:id="@+id/idText"
+        android:id="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Tytuł"
         android:inputType="text" />
+
+    <EditText
+        android:id="@+id/idText"
+        android:hint="Id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal" />
 
 </LinearLayout>

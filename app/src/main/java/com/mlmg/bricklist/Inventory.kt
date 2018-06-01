@@ -6,4 +6,7 @@ class Inventory(name: String, id: Int = 0, active: Boolean = true) {
     var active: Boolean? = active
     var lastMod: String? = null
     var inventoriesParts: ArrayList<InventoriesPart>? = null
+
+    var quantityInStore = 0
+    var quantityInSet = 0
 }

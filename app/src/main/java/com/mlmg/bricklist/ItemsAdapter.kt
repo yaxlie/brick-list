@@ -73,7 +73,7 @@ class ItemsAdapter(context: Context, parts: ArrayList<InventoriesPart>) : ArrayA
                         this.add(part)
                     }
                     else {
-                        convertView!!.setBackgroundColor(Color.GREEN)
+                        convertView!!.setBackgroundColor(context.resources.getColor(R.color.colorTrue))
                     }
                 }
                 else
