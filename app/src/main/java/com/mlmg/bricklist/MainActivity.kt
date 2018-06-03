@@ -1,5 +1,6 @@
 package com.mlmg.bricklist
 
+import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
@@ -9,10 +10,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutCompat
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ListView
+import android.widget.*
 import com.mlmg.bricklist.R.id.projectsList
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.project_list_object.view.*
@@ -221,10 +219,16 @@ class MainActivity : AppCompatActivity() {
         val idEditText = dialogView.findViewById<View>(R.id.idText) as EditText
         val titleEditText = dialogView.findViewById<View>(R.id.titleText) as EditText
 
+        val pr_dialog= ProgressDialog(this)
+        pr_dialog.setMessage("Dodawanie Projektu...")
+        pr_dialog.setTitle("Wczytywanie")
+        pr_dialog.setCancelable(false)
+        pr_dialog.isIndeterminate=true
+
         dialogBuilder.setTitle("Nowy projekt")
         dialogBuilder.setMessage("Wprowadź nazwę i id projektu")
         dialogBuilder.setPositiveButton("Dodaj", DialogInterface.OnClickListener { dialog, whichButton ->
-
+            pr_dialog.show()
             getXml(idEditText.text.toString(), object:XMLListener{
                 override fun onSuccess(xml:String) {
 
@@ -244,11 +248,14 @@ class MainActivity : AppCompatActivity() {
                     }
                     this@MainActivity.runOnUiThread(java.lang.Runnable {
                         loadProjects()
+                        pr_dialog.dismiss()
                     })
                 }
 
                 override fun onFailure(er : String) {
                     Log.i("ADD_PROJ", "Failure:" + er)
+                    pr_dialog.dismiss()
+                    Toast.makeText(this@MainActivity, "Błąd podczas dodawania projektu.", Toast.LENGTH_SHORT).show()
                 }
             })
 
